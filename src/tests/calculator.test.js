@@ -263,8 +263,8 @@ describe('Calculator - Square Root Operations', () => {
     expect(squareRoot(0)).toBe(0);
   });
 
-  test('should throw error on square root of negative number', () => {
-    expect(() => squareRoot(-4)).toThrow('Cannot calculate square root of negative numbers.');
+  test('should return NaN on square root of negative number', () => {
+    expect(squareRoot(-4)).toBeNaN();
   });
 
   test('should calculate square root of decimal', () => {
@@ -299,8 +299,9 @@ describe('Calculator - Edge Cases with New Operators', () => {
     expect(() => calculate([10, 0], ['%'])).toThrow('Modulo by zero is not allowed.');
   });
 
-  test('should throw error on square root of negative in chained calculation', () => {
-    expect(() => calculate([-4, 1], ['√'])).toThrow('Cannot calculate square root of negative numbers.');
+  test('should return NaN on square root of negative in chained calculation', () => {
+    const result = calculate([-4, 1], ['√']);
+    expect(result).toBeNaN();
   });
 });
 

@@ -25,100 +25,118 @@
  *   calculator.js √ 16
  */
 
-const args = process.argv.slice(2);
-
-// Validate input
-if (args.length < 3) {
-  console.error('Error: Invalid input format.');
-  console.error('Usage: calculator.js <number> <operator> <number> [<operator> <number> ...]');
-  console.error('\nSupported operators: + (addition), - (subtraction), * (multiplication), / (division), % (modulo), ^ (power), √ (square root)');
-  process.exit(1);
-}
-
-// Check for valid operators and valid number format
 const validOperators = ['+', '-', '*', '/', '%', '^', '√'];
-const operators = [];
-const numbers = [];
 
-// Parse arguments into numbers and operators
-for (let i = 0; i < args.length; i++) {
-  if (i % 2 === 0) {
-    // Even indices should be numbers
-    const num = parseFloat(args[i]);
-    if (isNaN(num)) {
-      console.error(`Error: "${args[i]}" is not a valid number.`);
-      process.exit(1);
-    }
-    numbers.push(num);
-  } else {
-    // Odd indices should be operators
-    if (!validOperators.includes(args[i])) {
-      console.error(`Error: "${args[i]}" is not a valid operator.`);
-      console.error('Supported operators: + (addition), - (subtraction), * (multiplication), / (division), % (modulo), ^ (power), √ (square root)');
-      process.exit(1);
-    }
-    operators.push(args[i]);
+/**
+ * Parse command-line arguments into numbers and operators
+ * @param {Array<string>} args - Command-line arguments
+ * @returns {Object} Object with numbers and operators arrays
+ * @throws {Error} If input format is invalid
+ */
+function parseArgs(args) {
+  if (args.length < 3) {
+    throw new Error('Invalid input format. Usage: calculator.js <number> <operator> <number> [<operator> <number> ...]');
   }
-}
 
-// Validate that we have the correct number of operators
-if (operators.length !== numbers.length - 1) {
-  console.error('Error: Invalid input format. Expected: <number> <operator> <number> [<operator> <number> ...]');
-  process.exit(1);
+  const operators = [];
+  const numbers = [];
+
+  for (let i = 0; i < args.length; i++) {
+    if (i % 2 === 0) {
+      const num = parseFloat(args[i]);
+      if (isNaN(num)) {
+        throw new Error(`"${args[i]}" is not a valid number.`);
+      }
+      numbers.push(num);
+    } else {
+      if (!validOperators.includes(args[i])) {
+        throw new Error(`"${args[i]}" is not a valid operator. Supported: + - * / % ^ √`);
+      }
+      operators.push(args[i]);
+    }
+  }
+
+  if (operators.length !== numbers.length - 1) {
+    throw new Error('Invalid input format. Expected: <number> <operator> <number> [<operator> <number> ...]');
+  }
+
+  return { numbers, operators };
 }
 
 /**
  * Perform arithmetic operations sequentially from left to right
+ * @param {Array<number>} numbers - Array of numbers
+ * @param {Array<string>} operators - Array of operators
+ * @returns {number} Result of calculations (may be NaN for sqrt of negative)
+ * @throws {Error} If division/modulo by zero
  */
-let result = numbers[0];
+function computeResult(numbers, operators) {
+  let result = numbers[0];
 
-for (let i = 0; i < operators.length; i++) {
-  const operator = operators[i];
-  const nextNum = numbers[i + 1];
+  for (let i = 0; i < operators.length; i++) {
+    const operator = operators[i];
+    const nextNum = numbers[i + 1];
 
-  // Handle division by zero
-  if (operator === '/' && nextNum === 0) {
-    console.error('Error: Division by zero is not allowed.');
-    process.exit(1);
+    if (operator === '/' && nextNum === 0) {
+      throw new Error('Division by zero is not allowed.');
+    }
+
+    if (operator === '%' && nextNum === 0) {
+      throw new Error('Modulo by zero is not allowed.');
+    }
+
+    switch (operator) {
+      case '+':
+        result += nextNum;
+        break;
+      case '-':
+        result -= nextNum;
+        break;
+      case '*':
+        result *= nextNum;
+        break;
+      case '/':
+        result /= nextNum;
+        break;
+      case '%':
+        result %= nextNum;
+        break;
+      case '^':
+        result = Math.pow(result, nextNum);
+        break;
+      case '√':
+        result = Math.sqrt(result);
+        break;
+    }
   }
 
-  // Handle modulo by zero
-  if (operator === '%' && nextNum === 0) {
-    console.error('Error: Modulo by zero is not allowed.');
-    process.exit(1);
-  }
+  return result;
+}
 
-  // Handle square root of negative numbers
-  if (operator === '√' && result < 0) {
-    console.error('Error: Cannot calculate square root of negative numbers.');
+/**
+ * Main CLI handler
+ * @param {Array<string>} args - Command-line arguments
+ */
+function main(args) {
+  try {
+    const { numbers, operators } = parseArgs(args);
+    const result = computeResult(numbers, operators);
+    console.log(`Result: ${result}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
     process.exit(1);
-  }
-
-  // Perform the operation
-  switch (operator) {
-    case '+':
-      result += nextNum;
-      break;
-    case '-':
-      result -= nextNum;
-      break;
-    case '*':
-      result *= nextNum;
-      break;
-    case '/':
-      result /= nextNum;
-      break;
-    case '%':
-      result %= nextNum;
-      break;
-    case '^':
-      result = Math.pow(result, nextNum);
-      break;
-    case '√':
-      result = Math.sqrt(result);
-      break;
   }
 }
 
-// Display the result
-console.log(`Result: ${result}`);
+// Run CLI if called directly
+if (require.main === module) {
+  main(process.argv.slice(2));
+}
+
+// Export functions for use as a module
+module.exports = {
+  parseArgs,
+  computeResult,
+  main,
+  validOperators
+};

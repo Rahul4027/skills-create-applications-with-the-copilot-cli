@@ -84,13 +84,9 @@ function power(base, exponent) {
 /**
  * Calculate square root
  * @param {number} n - Number to calculate square root for
- * @returns {number} Square root of n
- * @throws {Error} If number is negative
+ * @returns {number} Square root of n, or NaN if n is negative
  */
 function squareRoot(n) {
-  if (n < 0) {
-    throw new Error('Cannot calculate square root of negative numbers.');
-  }
   return Math.sqrt(n);
 }
 
