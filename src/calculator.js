@@ -8,6 +8,9 @@
  * - Subtraction (-): Subtract numbers sequentially
  * - Multiplication (*): Multiply numbers together
  * - Division (/): Divide numbers with zero division error handling
+ * - Modulo (%): Calculate the remainder of division
+ * - Power (^): Raise a number to a power (exponentiation)
+ * - Square Root (√): Calculate the square root of a number
  * 
  * Usage:
  *   calculator.js <number> <operator> <number> [<operator> <number> ...]
@@ -17,6 +20,9 @@
  *   calculator.js 20 - 8 - 3
  *   calculator.js 4 * 5
  *   calculator.js 100 / 4
+ *   calculator.js 10 % 3
+ *   calculator.js 2 ^ 8
+ *   calculator.js √ 16
  */
 
 const args = process.argv.slice(2);
@@ -25,12 +31,12 @@ const args = process.argv.slice(2);
 if (args.length < 3) {
   console.error('Error: Invalid input format.');
   console.error('Usage: calculator.js <number> <operator> <number> [<operator> <number> ...]');
-  console.error('\nSupported operators: + (addition), - (subtraction), * (multiplication), / (division)');
+  console.error('\nSupported operators: + (addition), - (subtraction), * (multiplication), / (division), % (modulo), ^ (power), √ (square root)');
   process.exit(1);
 }
 
 // Check for valid operators and valid number format
-const validOperators = ['+', '-', '*', '/'];
+const validOperators = ['+', '-', '*', '/', '%', '^', '√'];
 const operators = [];
 const numbers = [];
 
@@ -48,7 +54,7 @@ for (let i = 0; i < args.length; i++) {
     // Odd indices should be operators
     if (!validOperators.includes(args[i])) {
       console.error(`Error: "${args[i]}" is not a valid operator.`);
-      console.error('Supported operators: + (addition), - (subtraction), * (multiplication), / (division)');
+      console.error('Supported operators: + (addition), - (subtraction), * (multiplication), / (division), % (modulo), ^ (power), √ (square root)');
       process.exit(1);
     }
     operators.push(args[i]);
@@ -76,6 +82,18 @@ for (let i = 0; i < operators.length; i++) {
     process.exit(1);
   }
 
+  // Handle modulo by zero
+  if (operator === '%' && nextNum === 0) {
+    console.error('Error: Modulo by zero is not allowed.');
+    process.exit(1);
+  }
+
+  // Handle square root of negative numbers
+  if (operator === '√' && result < 0) {
+    console.error('Error: Cannot calculate square root of negative numbers.');
+    process.exit(1);
+  }
+
   // Perform the operation
   switch (operator) {
     case '+':
@@ -89,6 +107,15 @@ for (let i = 0; i < operators.length; i++) {
       break;
     case '/':
       result /= nextNum;
+      break;
+    case '%':
+      result %= nextNum;
+      break;
+    case '^':
+      result = Math.pow(result, nextNum);
+      break;
+    case '√':
+      result = Math.sqrt(result);
       break;
   }
 }

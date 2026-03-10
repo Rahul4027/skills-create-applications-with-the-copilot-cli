@@ -6,6 +6,9 @@
  * - Subtraction operations
  * - Multiplication operations
  * - Division operations
+ * - Modulo operations
+ * - Power/Exponentiation operations
+ * - Square root operations
  * - Edge cases (division by zero, chained operations, decimals)
  */
 
@@ -14,6 +17,9 @@ const {
   subtract,
   multiply,
   divide,
+  modulo,
+  power,
+  squareRoot,
   calculate,
   isValidOperator,
   VALID_OPERATORS
@@ -172,7 +178,7 @@ describe('Calculator - Edge Cases', () => {
   });
 
   test('should throw error on invalid operator', () => {
-    expect(() => calculate([5, 3], ['%'])).toThrow('Invalid operator: %');
+    expect(() => calculate([5, 3], ['&'])).toThrow('Invalid operator: &');
   });
 
   test('should throw error on mismatched numbers and operators', () => {
@@ -200,6 +206,104 @@ describe('Calculator - Edge Cases', () => {
   });
 });
 
+describe('Calculator - Modulo Operations', () => {
+  test('should calculate modulo: 10 % 3', () => {
+    expect(modulo(10, 3)).toBe(1);
+  });
+
+  test('should calculate modulo with negative numbers', () => {
+    expect(modulo(-10, 3)).toBe(-1);
+  });
+
+  test('should calculate modulo: 20 % 5', () => {
+    expect(modulo(20, 5)).toBe(0);
+  });
+
+  test('should throw error on modulo by zero', () => {
+    expect(() => modulo(10, 0)).toThrow('Modulo by zero is not allowed.');
+  });
+});
+
+describe('Calculator - Power/Exponentiation Operations', () => {
+  test('should calculate power: 2 ^ 8', () => {
+    expect(power(2, 8)).toBe(256);
+  });
+
+  test('should calculate power: 5 ^ 3', () => {
+    expect(power(5, 3)).toBe(125);
+  });
+
+  test('should calculate power: 10 ^ 0', () => {
+    expect(power(10, 0)).toBe(1);
+  });
+
+  test('should calculate power with negative exponent', () => {
+    expect(power(2, -2)).toBe(0.25);
+  });
+
+  test('should calculate power with decimal base', () => {
+    expect(power(2.5, 2)).toBe(6.25);
+  });
+});
+
+describe('Calculator - Square Root Operations', () => {
+  test('should calculate square root: √16', () => {
+    expect(squareRoot(16)).toBe(4);
+  });
+
+  test('should calculate square root: √100', () => {
+    expect(squareRoot(100)).toBe(10);
+  });
+
+  test('should calculate square root: √2', () => {
+    expect(squareRoot(2)).toBeCloseTo(1.414213, 5);
+  });
+
+  test('should calculate square root of zero', () => {
+    expect(squareRoot(0)).toBe(0);
+  });
+
+  test('should throw error on square root of negative number', () => {
+    expect(() => squareRoot(-4)).toThrow('Cannot calculate square root of negative numbers.');
+  });
+
+  test('should calculate square root of decimal', () => {
+    expect(squareRoot(6.25)).toBe(2.5);
+  });
+});
+
+describe('Calculator - Chained Operations with New Operators', () => {
+  test('should handle modulo in chained operations: 10 % 3 + 5', () => {
+    const result = calculate([10, 3, 5], ['%', '+']);
+    expect(result).toBe(6);
+  });
+
+  test('should handle power in chained operations: 2 ^ 3 * 2', () => {
+    const result = calculate([2, 3, 2], ['^', '*']);
+    expect(result).toBe(16);
+  });
+
+  test('should handle square root in chained operations: 100 √ + 10', () => {
+    const result = calculate([100, 1, 10], ['√', '+']);
+    expect(result).toBe(20);
+  });
+
+  test('should handle mixed operations: 20 % 6 * 3', () => {
+    const result = calculate([20, 6, 3], ['%', '*']);
+    expect(result).toBe(6);
+  });
+});
+
+describe('Calculator - Edge Cases with New Operators', () => {
+  test('should throw error on modulo by zero in chained calculation', () => {
+    expect(() => calculate([10, 0], ['%'])).toThrow('Modulo by zero is not allowed.');
+  });
+
+  test('should throw error on square root of negative in chained calculation', () => {
+    expect(() => calculate([-4, 1], ['√'])).toThrow('Cannot calculate square root of negative numbers.');
+  });
+});
+
 describe('Calculator - Operator Validation', () => {
   test('should validate addition operator', () => {
     expect(isValidOperator('+')).toBe(true);
@@ -217,8 +321,20 @@ describe('Calculator - Operator Validation', () => {
     expect(isValidOperator('/')).toBe(true);
   });
 
+  test('should validate modulo operator', () => {
+    expect(isValidOperator('%')).toBe(true);
+  });
+
+  test('should validate power operator', () => {
+    expect(isValidOperator('^')).toBe(true);
+  });
+
+  test('should validate square root operator', () => {
+    expect(isValidOperator('√')).toBe(true);
+  });
+
   test('should reject invalid operator', () => {
-    expect(isValidOperator('%')).toBe(false);
+    expect(isValidOperator('&')).toBe(false);
   });
 
   test('should reject empty operator', () => {
@@ -226,6 +342,6 @@ describe('Calculator - Operator Validation', () => {
   });
 
   test('should have all valid operators', () => {
-    expect(VALID_OPERATORS).toEqual(['+', '-', '*', '/']);
+    expect(VALID_OPERATORS).toEqual(['+', '-', '*', '/', '%', '^', '√']);
   });
 });
